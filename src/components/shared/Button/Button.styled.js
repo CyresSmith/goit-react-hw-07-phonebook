@@ -25,6 +25,23 @@ export const StyledButton = styled('button')`
   }
 `;
 
+export const Loader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 1s linear 0s infinite;
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 export const ButtonText = styled.span`
   margin-left: ${p => (p.isIconThere ? theme.space[3] : theme.space[0])};
 `;

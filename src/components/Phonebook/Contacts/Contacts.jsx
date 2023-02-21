@@ -1,26 +1,15 @@
-import { IoMdPerson, IoIosCall } from 'react-icons/io';
-import { MdPersonRemoveAlt1 } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { InfinitySpin } from 'react-loader-spinner';
 
-import {
-  ContactsList,
-  Contact,
-  Name,
-  Phone,
-  DeletBtn,
-} from './Contacts.styled';
-import Box from 'components/shared/Box';
+import { ContactsList } from './Contacts.styled';
 import theme from 'theme';
 import { getContacts, getFilters } from 'redux/selectors';
-import { removeContact } from 'redux/contactsSlice';
+import { ContactsItem } from './ContactItem';
 
 const Contacts = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
-  const filters = useSelector(getFilters);
-
-  const handleContactRemove = id => dispatch(removeContact(id));
+  const { myContacts, isLoading, error } = useSelector(getContacts);
+  const { filterValue } = useSelector(getFilters);
 
   const visibleСontacts = (value, contacts) => {
     if (value) {
@@ -40,29 +29,16 @@ const Contacts = () => {
   };
 
   return (
-    <ContactsList>
-      {visibleСontacts(filters.filterValue, contacts).map(contact => {
-        const { id, name, number } = contact;
-        return (
-          <Contact key={id}>
-            <Box>
-              <Box display="flex" alignItems="center">
-                <IoMdPerson size={20} color={theme.colors.secondary} />
-                <Name>{name}</Name>
-              </Box>
-              <Box display="flex" alignItems="center">
-                <IoIosCall size={20} color={theme.colors.secondary} />
-                <Phone>{number}</Phone>
-              </Box>
-            </Box>
-
-            <DeletBtn onClick={() => handleContactRemove(id)}>
-              <MdPersonRemoveAlt1 size={20} color={theme.colors.white} />
-            </DeletBtn>
-          </Contact>
-        );
-      })}
-    </ContactsList>
+    <>
+      {!myContacts.length > 0 && isLoading && (
+        <InfinitySpin width="200" color={theme.colors.accent} />
+      )}
+      <ContactsList>
+        {visibleСontacts(filterValue, myContacts).map(contact => (
+          <ContactsItem key={contact.id} {...contact} />
+        ))}
+      </ContactsList>
+    </>
   );
 };
 

@@ -37,19 +37,37 @@ export const DeletBtn = styled.button`
   font-family: ${theme.fonts.body};
   font-size: ${theme.fontSizes.m};
   font-weight: ${theme.fontWeights.regular};
-  padding: ${theme.space[3]};
+  padding: ${theme.space[2]};
   color: ${theme.colors.secondary};
-  background-color: red;
+  background-color: ${p => (p.disabled ? theme.colors.muted : 'salmon')};
   cursor: pointer;
   border: ${theme.borders.none};
   border-radius: ${theme.radii.normal};
-  box-shadow: ${theme.shadow.medium};
+  box-shadow: ${theme.shadow.low};
   transition-property: all;
   transition-duration: 250ms;
   transition-timing-function: ease-in-out;
 
   :hover:not(:disabled) {
-    box-shadow: ${theme.shadow.high};
+    background-color: red;
+    box-shadow: ${theme.shadow.medium};
     scale: 1.05;
+  }
+`;
+
+export const Loader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 1s linear 0s infinite;
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;

@@ -1,14 +1,17 @@
 import { Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { nanoid } from 'nanoid';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { IoIosCall, IoMdPerson, IoMdPersonAdd } from 'react-icons/io';
 
+import { getContacts } from 'redux/selectors';
+import { addContact } from 'redux/operations';
+
 import { PhonebookForm as Form, Input, Label, Error } from './Form.styled';
-import { addContact } from 'redux/contactsSlice';
 import Box from 'components/shared/Box';
 import Button from 'components/shared/Button';
 import theme from 'theme';
+import { Notify } from 'notiflix';
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -26,7 +29,26 @@ const ValidationSchema = Yup.object().shape({
 
 const AddContactForm = () => {
   const dispatch = useDispatch();
-  const handleContactAdd = contact => dispatch(addContact(contact));
+
+  const { myContacts, isLoading, error } = useSelector(getContacts);
+
+  const handleContactAdd = contact => {
+    const { name } = contact;
+    const normalizedName = name.toLowerCase();
+
+    const dublicate = myContacts.find(
+      ({ name }) => name.toLowerCase().trim() === normalizedName
+    );
+
+    if (dublicate) {
+      Notify.failure(`${name} already in contacts`, {
+        showOnlyTheLastOne: true,
+        position: 'right-bottom',
+      });
+    } else {
+      dispatch(addContact(contact));
+    }
+  };
 
   return (
     <Formik
@@ -46,8 +68,9 @@ const AddContactForm = () => {
 
         const contact = {
           id: nanoid(),
+          createdAt: new Date().toISOString(),
           name: name(firstName, lastName),
-          number: tel.trim(),
+          phone: tel.trim(),
         };
 
         handleContactAdd(contact);
@@ -97,11 +120,12 @@ const AddContactForm = () => {
 
         <Button
           type="submit"
+          isLoading={isLoading}
           icon={IoMdPersonAdd}
-          disabled={false}
+          disabled={isLoading ? true : false}
           children="Add contact"
           iconSize={20}
-        ></Button>
+        />
       </Form>
     </Formik>
   );
