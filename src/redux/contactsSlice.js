@@ -1,63 +1,57 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { fetchContacts, addContact, removeContact } from './operations';
+export const contactsApi = createApi({
+  reducerPath: 'contacts',
 
-const contactsInitialState = {
-  myContacts: [],
-  isLoading: false,
-  error: null,
-};
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://63f4e98755677ef68bc69435.mockapi.io/api',
+  }),
 
-const handlePending = state => {
-  state.isLoading = true;
-};
-const handleRejected = (state, action) => {
-  state.isLoading = false;
-  state.error = action.payload;
-};
+  tagTypes: ['Contacts'],
 
-const contactsSlice = createSlice({
-  name: 'contacts',
-  initialState: contactsInitialState,
+  endpoints: builder => ({
+    getContacts: builder.query({
+      query: () => '/contacts',
+      providesTags: ['Contacts'],
+    }),
 
-  extraReducers: {
-    [fetchContacts.pending]: handlePending,
-    [fetchContacts.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.myContacts = action.payload;
-    },
-    [fetchContacts.rejected]: handleRejected,
+    getContactById: builder.query({
+      query: id => `/contacts/${id}`,
+      providesTags: ['Contacts'],
+    }),
 
-    // ============================
+    addContact: builder.mutation({
+      query: contact => ({
+        url: '/contacts',
+        method: 'POST',
+        body: contact,
+      }),
+      invalidatesTags: ['Contacts'],
+    }),
 
-    [addContact.pending]: handlePending,
+    removeContact: builder.mutation({
+      query: id => ({
+        url: `/contacts/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Contacts'],
+    }),
 
-    [addContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.myContacts.push(action.payload);
-    },
-
-    [addContact.rejected]: handleRejected,
-
-    // ============================
-
-    [removeContact.pending]: handlePending,
-
-    [removeContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.myContacts = state.myContacts.filter(
-        contact => contact.id !== action.payload.id
-      );
-    },
-
-    [removeContact.rejected]: handleRejected,
-  },
+    editContact: builder.mutation({
+      query: contact => ({
+        url: `/contacts/${contact.id}`,
+        method: 'PUT',
+        body: contact,
+      }),
+      invalidatesTags: ['Contacts'],
+    }),
+  }),
 });
 
-export const { fetchingInProgress, fetchingSucces, fetchingError } =
-  contactsSlice.actions;
-export const contactsReducer = contactsSlice.reducer;
+export const {
+  useGetContactsQuery,
+  useGetContactByIdQuery,
+  useAddContactMutation,
+  useRemoveContactMutation,
+  useEditContactMutation,
+} = contactsApi;
