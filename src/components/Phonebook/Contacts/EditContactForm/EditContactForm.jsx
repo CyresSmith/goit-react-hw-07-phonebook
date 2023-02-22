@@ -1,15 +1,17 @@
 import { Formik, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { nanoid } from 'nanoid';
 import { IoIosCall, IoMdPerson, IoMdPersonAdd } from 'react-icons/io';
 import { MdEmail } from 'react-icons/md';
-import { Notify } from 'notiflix';
-import {
-  useGetContactsQuery,
-  useAddContactMutation,
-} from 'redux/contactsSlice';
+import { useEditContactMutation } from 'redux/contactsSlice';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { RiSave3Fill } from 'react-icons/ri';
 
-import { PhonebookForm as Form, Input, Label, Error } from './Form.styled';
+import {
+  PhonebookForm as Form,
+  Input,
+  Label,
+  Error,
+} from './EditContactForm.styled';
 import Box from 'components/shared/Box';
 import Button from 'components/shared/Button';
 import theme from 'theme';
@@ -29,53 +31,35 @@ const ValidationSchema = Yup.object().shape({
   email: Yup.string().email('example: mail@mail.com'),
 });
 
-const AddContactForm = () => {
-  const { data: myContacts = [] } = useGetContactsQuery();
-  const [addContact, { isLoading }] = useAddContactMutation();
+const EditContactForm = ({ data, toggleModal }) => {
+  const [editContact, { isLoading }] = useEditContactMutation();
 
-  const handleContactAdd = contact => {
-    const { firstname, lastname } = contact;
-    const name = firstname + ' ' + lastname;
-    const normalizedName = name.toLowerCase().trim();
-
-    const dublicate = myContacts.find(({ firstname, lastname }) => {
-      const name = firstname + ' ' + lastname;
-      return name.toLowerCase().trim() === normalizedName;
-    });
-
-    if (dublicate) {
-      Notify.failure(`${name} already in contacts`, {
-        showOnlyTheLastOne: true,
-        position: 'right-top',
-      });
-      return;
-    } else {
-      Notify.success('Сontact added successfully');
-      addContact(contact);
-    }
-  };
+  const { id, firstname, lastname, phone, email, createdAt } = data;
 
   return (
     <Formik
       initialValues={{
-        firstName: '',
-        lastName: '',
-        tel: '',
-        email: '',
+        id,
+        firstName: firstname,
+        lastName: lastname,
+        tel: phone,
+        email,
+        createdAt,
       }}
       validationSchema={ValidationSchema}
-      onSubmit={({ firstName, lastName, tel, email }, { resetForm }) => {
+      onSubmit={({ firstName, lastName, tel, email }) => {
         const contact = {
-          id: nanoid(),
-          createdAt: new Date().toISOString(),
-          firstname: firstName.trim(),
-          lastname: lastName.trim(),
-          phone: tel.trim(),
-          email: email.trim(),
+          id,
+          firstname: firstName,
+          lastname: lastName,
+          phone: tel,
+          email,
+          createdAt,
         };
 
-        handleContactAdd(contact);
-        resetForm();
+        editContact(contact);
+        Notify.warning('Contact successfully changed');
+        toggleModal();
       }}
     >
       <Form>
@@ -138,9 +122,9 @@ const AddContactForm = () => {
         <Button
           type="submit"
           isLoading={isLoading}
-          icon={IoMdPersonAdd}
+          icon={RiSave3Fill}
           disabled={isLoading ? true : false}
-          children="Add contact"
+          children="Save"
           iconSize={20}
         />
       </Form>
@@ -148,4 +132,4 @@ const AddContactForm = () => {
   );
 };
 
-export default AddContactForm;
+export default EditContactForm;

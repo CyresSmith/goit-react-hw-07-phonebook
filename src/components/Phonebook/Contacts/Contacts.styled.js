@@ -12,9 +12,9 @@ export const Contact = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: calc((100% - (${theme.space[4]} * 3)) / 4);
+  width: calc((100% - (${theme.space[4]} * 2)) / 3);
   font-size: ${theme.fontSizes.m};
-  padding: ${theme.space[3]};
+  padding: ${theme.space[4]};
   color: ${theme.colors.secondary};
   background-color: ${theme.colors.primary};
   border-radius: ${theme.radii.high};
@@ -50,6 +50,31 @@ export const DeletBtn = styled.button`
 
   :hover:not(:disabled) {
     background-color: red;
+    box-shadow: ${theme.shadow.medium};
+    scale: 1.05;
+  }
+`;
+
+export const EditBtn = styled.button`
+  display: inline-flex;
+  font-family: ${theme.fonts.body};
+  font-size: ${theme.fontSizes.m};
+  font-weight: ${theme.fontWeights.regular};
+  padding: ${theme.space[2]};
+  color: ${theme.colors.accent};
+  background-color: ${p =>
+    p.disabled ? theme.colors.muted : theme.colors.background};
+  cursor: pointer;
+  border: ${theme.borders.none};
+  border-radius: ${theme.radii.normal};
+  box-shadow: ${theme.shadow.low};
+  transition-property: all;
+  transition-duration: 250ms;
+  transition-timing-function: ease-in-out;
+  margin-bottom: ${theme.space[4]};
+
+  :hover:not(:disabled) {
+    background-color: ${theme.colors.secondary};
     box-shadow: ${theme.shadow.medium};
     scale: 1.05;
   }
